@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartAg Ops Advisor</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- Custom Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+          <i class="ph-bold ph-plant text-2xl"></i>
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight text-white block leading-none">SmartAg Ops</span>
+          <span class="text-xs text-brand-400 font-medium">Market Intelligence & Risk</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <button id="btn-gps" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium border border-slate-700 transition">
+          <i class="ph-bold ph-navigation-arrow text-brand-400"></i>
+          <span class="hidden sm:inline">Use GPS</span>
+        </button>
+        <button id="btn-reset" title="Clear saved data on this device" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-slate-200 text-sm font-medium border border-slate-700 transition">
+          <i class="ph-bold ph-trash text-rose-400"></i>
+          <span class="hidden sm:inline">Reset saved</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800 py-10 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:16px_16px]"></div>
+    <div class="max-w-7xl mx-auto relative">
+      <div class="max-w-3xl">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Grow Smarter. <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-emerald-300">Sell Better.</span>
+        </h1>
+        <p class="mt-2 text-slate-400 text-sm sm:text-base leading-relaxed">
+          Real-time weather risk evaluation, regional Mandi distance matrix, net profit optimization, and direct buyer appointment booking.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+    
+    <!-- Status Dashboard Metrics -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
+        <div class="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+          <i class="ph-bold ph-map-pin text-brand-400 text-base"></i> Location
+        </div>
+        <div id="stat-loc" class="text-lg sm:text-xl font-bold text-white mt-2 truncate">Not selected</div>
+        <div id="stat-loc-sub" class="text-xs text-slate-500 mt-1">Select state or district</div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
+        <div class="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+          <i class="ph-bold ph-thermometer text-amber-400 text-base"></i> Temperature
+        </div>
+        <div id="stat-temp" class="text-lg sm:text-xl font-bold text-white mt-2">--</div>
+        <div id="stat-temp-sub" class="text-xs text-slate-500 mt-1">Forecast Max</div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
+        <div class="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+          <i class="ph-bold ph-cloud-rain text-blue-400 text-base"></i> Rain Chance
+        </div>
+        <div id="stat-rain" class="text-lg sm:text-xl font-bold text-white mt-2">--</div>
+        <div id="stat-rain-sub" class="text-xs text-slate-500 mt-1">Precipitation prob.</div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
+        <div class="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+          <i class="ph-bold ph-warning-circle text-rose-400 text-base"></i> Weather Risk
+        </div>
+        <div id="stat-risk" class="text-lg sm:text-xl font-bold text-white mt-2">--</div>
+        <div id="stat-risk-sub" class="text-xs text-slate-500 mt-1">Harvest & Transport</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Controls and Input Forms -->
+      <div class="lg:col-span-1 space-y-6">
+        
+        <!-- Voice Assistant Panel -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="ph-bold ph-microphone text-emerald-400 text-lg"></i> Voice Assistant
+            </h2>
+            <span id="voice-indicator" class="hidden flex h-3 w-3 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Hands-free step-by-step vocal input. Speak details like state, crop name, quantity, or transport costs directly.
+          </p>
+
+          <div class="flex gap-2">
+            <button id="btn-voice" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20">
+              <i class="ph-bold ph-microphone"></i> Start Assistant
+            </button>
+          </div>
+
+          <div id="voice-status" class="mt-3 text-xs text-emerald-400 font-semibold min-h-[18px]"></div>
+          
+          <div id="voice-log" class="mt-3 bg-slate-950/80 border border-slate-800/80 rounded-xl p-3 max-h-36 overflow-y-auto text-xs space-y-1.5 font-mono">
+            <div class="text-slate-500 italic">Logs will appear here...</div>
+          </div>
+        </div>
+
+        <!-- Inputs Form Card -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+          <h2 class="text-base font-bold text-white flex items-center gap-2 mb-4">
+            <i class="ph-bold ph-sliders-horizontal text-brand-400 text-lg"></i> Operational Inputs
+          </h2>
+
+          <form id="farm-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">State / UT</label>
+              <select id="state" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition">
+                <option value="">Select State</option>
+              </select>
+            </div>
+
+            <div id="district-wrap" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">District (Karnataka)</label>
+                <select id="district" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition">
+                  <option value="">Select District</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Taluk</label>
+                <select id="taluk" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition">
+                  <option value="">Select Taluk</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Place / Village (search)</label>
+                <input id="place" type="text" list="place-list" autocomplete="off" placeholder="Type any town or village in Karnataka" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition" />
+                <datalist id="place-list"></datalist>
+                <p id="place-note" class="text-[11px] text-slate-500 mt-1">Pick a match to use its exact location for weather and mandi distances.</p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Crop Type</label>
+              <select id="crop" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition">
+                <option value="">Select Crop</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Quantity (kg)</label>
+                <input id="quantity" type="number" min="1" placeholder="500" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Transport (₹)</label>
+                <input id="transport" type="number" min="0" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Expenses (₹)</label>
+                <input id="expenses" type="number" min="0" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition" />
+              </div>
+            </div>
+
+            <button type="button" id="btn-analyze" class="w-full mt-2 bg-gradient-to-r from-brand-600 to-emerald-500 hover:from-brand-500 hover:to-emerald-400 text-white font-semibold py-3 px-4 rounded-xl text-sm transition shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2">
+              <i class="ph-bold ph-chart-line-up text-lg"></i> Run Market Analysis
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Results & Interactive Booking -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Initial Placeholder State -->
+        <div id="results-empty" class="bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl p-12 text-center">
+          <div class="w-16 h-16 rounded-full bg-slate-800/80 text-slate-500 flex items-center justify-center mx-auto mb-4">
+            <i class="ph-bold ph-chart-bar text-3xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-300">No Active Analysis</h3>
+          <p class="text-sm text-slate-500 max-w-md mx-auto mt-1">
+            Fill in your crop parameters and location on the left panel, or trigger the Voice Assistant to run revenue calculations.
+          </p>
+        </div>
+
+        <!-- Analysis Output Container -->
+        <div id="results-panel" class="hidden space-y-6">
+          
+          <!-- Recommendation Banner -->
+          <div class="bg-slate-900/90 border border-brand-500/30 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 rounded-full blur-2xl"></div>
+            
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 shrink-0 mt-0.5">
+                <i class="ph-bold ph-sparkle text-2xl"></i>
+              </div>
+              <div class="space-y-2">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                  Optimization Insights
+                </h3>
+                <p id="recommendation-text" class="text-sm text-slate-300 leading-relaxed"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Breakdown Summary Grid -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Revenue Breakdown Summary</h4>
+            <div id="calc-summary" class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm font-mono text-slate-300 space-y-2">
+            </div>
+          </div>
+
+          <!-- Mandi Price Comparison Chart -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base font-bold text-white">Nearby Mandi Price Comparison</h4>
+                <p class="text-xs text-slate-400 mt-0.5">Estimated rates per Kg normalized by travel distance</p>
+              </div>
+              <span class="text-xs text-slate-500 bg-slate-800 px-2.5 py-1 rounded-md">Demographic Baseline</span>
+            </div>
+
+            <div id="chart-container" class="space-y-3 pt-2">
+              <!-- Dynamically Populated Bars -->
+            </div>
+          </div>
+
+          <!-- Appointment Booking Module -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-5">
+            <div class="border-b border-slate-800 pb-3">
+              <h4 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="ph-bold ph-calendar-check text-brand-400 text-xl"></i> Schedule Delivery / Booking Slip
+              </h4>
+              <p class="text-xs text-slate-400 mt-1">
+                Directly register your produce delivery slot with top regional Mandi dealers.
+              </p>
+            </div>
+
+            <form id="booking-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Target Market</label>
+                <select id="book-market" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Customer / Farmer Name</label>
+                <input id="book-customer" type="text" placeholder="e.g. Ramesh Kumar" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Trader / Shopkeeper Name</label>
+                <input id="book-shopkeeper" type="text" placeholder="e.g. Sri Lakshmi Traders" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Contact Phone</label>
+                <input id="book-phone" type="tel" placeholder="+91 98765 43210" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Trader Phone (so they can accept)</label>
+                <input id="book-trader-phone" type="tel" placeholder="+91 98765 00000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Preferred Date</label>
+                <input id="book-date" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Arrival Time</label>
+                <input id="book-time" type="time" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500" />
+              </div>
+
+              <div class="sm:col-span-2 pt-2">
+                <button type="button" id="btn-book" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2">
+                  <i class="ph-bold ph-ticket"></i> Confirm Appointment & Generate Slip
+                </button>
+              </div>
+            </form>
+
+            <!-- Generated Slip Output -->
+            <div id="slip-container" class="hidden bg-slate-950 border border-emerald-500/40 rounded-xl p-5 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-check-circle text-emerald-400 text-xl"></i>
+                  <span class="font-bold text-white text-sm">Booking Voucher Confirmed</span>
+                </div>
+                <span id="slip-id" class="text-xs font-mono bg-slate-800 text-emerald-400 px-2 py-1 rounded"></span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div>
+                  <span class="text-slate-500 block">Farmer Name</span>
+                  <span id="slip-customer" class="font-semibold text-slate-200"></span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Trader / Shop</span>
+                  <span id="slip-shopkeeper" class="font-semibold text-slate-200"></span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Market</span>
+                  <span id="slip-market" class="font-semibold text-slate-200"></span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Scheduled Time</span>
+                  <span id="slip-schedule" class="font-semibold text-emerald-400"></span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Produce / Quantity</span>
+                  <span id="slip-produce" class="font-semibold text-slate-200"></span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Agreed Rate</span>
+                  <span id="slip-rate" class="font-semibold text-slate-200"></span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Est. Gross Revenue</span>
+                  <span id="slip-gross" class="font-semibold text-emerald-400"></span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Contact Phone</span>
+                  <span id="slip-phone" class="font-semibold text-slate-200"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Saved Booking History -->
+            <div id="history-container" class="hidden space-y-2 pt-2">
+              <h5 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Saved Bookings (this device)</h5>
+              <div id="history-list" class="space-y-2"></div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 px-4 text-center text-xs text-slate-500 space-y-1">
+    <p>SmartAg Ops Advisor &bull; Designed for Agile Agricultural Logistics</p>
+    <p class="text-slate-600">Mandi prices are synthetic estimates generated for demonstration purposes.</p>
+    <p id="cloud-status" class="text-slate-600">Cloud sync: Local Storage active</p>
+  </footer>
+
+  <!-- Client Logic -->
+  <script>
+    const CROPS = [
+      "Apple","Arecanut","Bajra (Pearl Millet)","Banana","Barley","Beans","Beetroot","Bitter Gourd",
+      "Black Gram (Urad)","Brinjal","Cabbage","Capsicum","Carrot","Cauliflower","Chickpea (Chana)",
+      "Coconut","Coffee","Coriander","Cotton","Cucumber","Drumstick","Garlic","Ginger","Grapes",
+      "Green Chilli","Green Gram (Moong)","Groundnut","Guava","Horse Gram","Jowar (Sorghum)",
+      "Lemon","Lentil (Masoor)","Maize","Mango","Mustard","Okra (Ladies Finger)","Onion","Orange",
+      "Papaya","Peas","Pineapple","Pomegranate","Potato","Pumpkin","Radish","Ragi (Finger Millet)",
+      "Rice (Paddy)","Sesame","Soybean","Spinach","Sugarcane","Sunflower","Tomato","Tur (Arhar) Dal",
+      "Turmeric","Watermelon","Wheat"
+    ];
+
+    const CROP_BASE_PRICES = {
+      "Tomato":20,"Onion":26,"Potato":21,"Brinjal":28,"Cabbage":16,"Cauliflower":24,"Carrot":32,"Beans":45,
+      "Okra (Ladies Finger)":38,"Green Chilli":50,"Capsicum":40,"Cucumber":18,"Pumpkin":14,"Bitter Gourd":36,
+      "Drumstick":60,"Beetroot":25,"Radish":15,"Peas":55,"Spinach":20,"Coriander":40,"Garlic":90,"Ginger":70,
+      "Wheat":25,"Rice (Paddy)":22,"Maize":21,"Ragi (Finger Millet)":35,"Jowar (Sorghum)":33,"Bajra (Pearl Millet)":26,"Barley":22,
+      "Tur (Arhar) Dal":95,"Chickpea (Chana)":60,"Green Gram (Moong)":85,"Black Gram (Urad)":90,"Lentil (Masoor)":62,"Horse Gram":55,
+      "Groundnut":65,"Sunflower":62,"Soybean":48,"Sesame":110,"Mustard":58,"Cotton":70,"Sugarcane":4,"Coconut":30,
+      "Arecanut":450,"Coffee":230,"Turmeric":120,"Banana":30,"Mango":60,"Apple":110,"Orange":45,"Grapes":70,
+      "Pomegranate":100,"Papaya":25,"Watermelon":14,"Guava":40,"Pineapple":35,"Lemon":60
+    };
+
+    const KARNATAKA_DISTRICTS = {
+      "Bagalkot": ["Badami","Bagalkot","Bilagi","Guledgudda","Hungund","Ilkal","Jamkhandi","Mudhol","Rabkavi Banahatti","Terdal"],
+      "Ballari": ["Ballari","Kampli","Kurugodu","Sandur","Siruguppa"],
+      "Belagavi": ["Athani","Bailhongal","Belagavi","Chikkodi","Gokak","Hukkeri","Khanapur","Kittur","Mudalgi","Nippani","Raibag","Ramdurg","Saundatti","Kagwad","Yargatti"],
+      "Bengaluru Rural": ["Devanahalli","Doddaballapura","Hosakote","Nelamangala"],
+      "Bengaluru Urban": ["Bengaluru North","Bengaluru South","Bengaluru East","Anekal","Yelahanka","Kengeri","Krishnarajapura"],
+      "Bidar": ["Aurad","Basavakalyan","Bhalki","Bidar","Chitaguppa","Hulsoor","Humnabad","Kamalnagar"],
+      "Chamarajanagar": ["Chamarajanagar","Gundlupet","Hanur","Kollegal","Yelandur"],
+      "Chikkaballapur": ["Bagepalli","Chikkaballapur","Chintamani","Gauribidanur","Gudibanda","Sidlaghatta","Cheluru","Manchenahalli"],
+      "Chikkamagaluru": ["Ajjampura","Chikkamagaluru","Kadur","Kalasa","Koppa","Mudigere","Narasimharajapura","Sringeri","Tarikere"],
+      "Chitradurga": ["Challakere","Chitradurga","Hiriyur","Holalkere","Hosadurga","Molakalmuru"],
+      "Dakshina Kannada": ["Bantwal","Belthangady","Kadaba","Mangaluru","Moodabidri","Mulki","Puttur","Sullia","Ullal"],
+      "Davanagere": ["Channagiri","Davanagere","Harihar","Honnali","Jagalur","Nyamathi"],
+      "Dharwad": ["Alnavar","Annigeri","Dharwad","Hubballi","Hubballi City","Kalghatgi","Kundgol","Navalgund"],
+      "Gadag": ["Gadag","Gajendragad","Laxmeshwar","Mundargi","Nargund","Ron","Shirahatti"],
+      "Hassan": ["Alur","Arkalgud","Arsikere","Belur","Channarayapatna","Hassan","Holenarasipura","Sakleshpur"],
+      "Haveri": ["Byadgi","Hangal","Haveri","Hirekerur","Ranebennur","Rattihalli","Savanur","Shiggaon"],
+      "Kalaburagi": ["Afzalpur","Aland","Chincholi","Chittapur","Jewargi","Kalaburagi","Kalagi","Kamalapur","Sedam","Shahabad","Yadrami"],
+      "Kodagu": ["Kushalnagar","Madikeri","Ponnampet","Somwarpet","Virajpet"],
+      "Kolar": ["Bangarapet","Kolar","KGF","Malur","Mulbagal","Srinivaspur"],
+      "Koppal": ["Gangavathi","Kanakagiri","Karatagi","Koppal","Kukanur","Kushtagi","Yelburga"],
+      "Mandya": ["Krishnarajpet","Maddur","Malavalli","Mandya","Nagamangala","Pandavapura","Srirangapatna"],
+      "Mysuru": ["Bilikere","H D Kote","Hunsur","K R Nagar","Mysuru","Nanjangud","Periyapatna","Saligrama","T Narasipura"],
+      "Raichur": ["Devadurga","Lingsugur","Manvi","Maski","Mudgal","Raichur","Sindhanur","Sirwar"],
+      "Ramanagara": ["Channapatna","Harohalli","Kanakapura","Magadi","Ramanagara"],
+      "Shivamogga": ["Bhadravati","Hosanagara","Sagar","Shikaripura","Shivamogga","Sorab","Thirthahalli"],
+      "Tumakuru": ["Chikkanayakanahalli","Gubbi","Koratagere","Kunigal","Madhugiri","Pavagada","Sira","Tiptur","Tumakuru","Turuvekere"],
+      "Udupi": ["Brahmavar","Byndoor","Hebri","Kapu","Karkala","Kundapura","Udupi"],
+      "Uttara Kannada": ["Ankola","Bhatkal","Dandeli","Haliyal","Honnavar","Joida","Karwar","Kumta","Mundgod","Siddapur","Sirsi","Yellapur"],
+      "Vijayanagara": ["Hagaribommanahalli","Hadagali","Harapanahalli","Hosapete","Kotturu","Kudligi"],
+      "Vijayapura": ["Babaleshwar","Basavana Bagewadi","Chadchan","Devar Hippargi","Indi","Kolhar","Muddebihal","Sindagi","Talikoti","Tikota","Vijayapura","Nidagundi","Almel"],
+      "Yadgir": ["Gurmitkal","Hunasagi","Shahapur","Shorapur","Vadagera","Yadgir"]
+    };
+
+    const DISTRICT_COORDS = {
+      "Bagalkot": [16.1817,75.6958], "Ballari": [15.1394,76.9214], "Belagavi": [15.8497,74.4977],
+      "Bengaluru Rural": [13.2957,77.5377], "Bengaluru Urban": [12.9716,77.5946], "Bidar": [17.9104,77.5199],
+      "Chamarajanagar": [11.9261,76.9437], "Chikkaballapur": [13.4355,77.7315], "Chikkamagaluru": [13.3161,75.7720],
+      "Chitradurga": [14.2251,76.3980], "Dakshina Kannada": [12.9141,74.8560], "Davanagere": [14.4644,75.9218],
+      "Dharwad": [15.4589,75.0078], "Gadag": [15.4298,75.6297], "Hassan": [13.0072,76.0962],
+      "Haveri": [14.7951,75.4043], "Kalaburagi": [17.3297,76.8343], "Kodagu": [12.4244,75.7382],
+      "Kolar": [13.1360,78.1292], "Koppal": [15.3547,76.1548], "Mandya": [12.5218,76.8951],
+      "Mysuru": [12.2958,76.6394], "Raichur": [16.2120,77.3439], "Ramanagara": [12.7157,77.2810],
+      "Shivamogga": [13.9299,75.5681], "Tumakuru": [13.3379,77.1173], "Udupi": [13.3409,74.7421],
+      "Uttara Kannada": [14.8137,74.1290], "Vijayanagara": [15.2689,76.3909], "Vijayapura": [16.8302,75.7100],
+      "Yadgir": [16.7700,77.1380]
+    };
+
+    const STATES = [
+      "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana",
+      "Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur",
+      "Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana",
+      "Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh",
+      "Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry"
+    ];
+
+    let currentGPS = null;
+    let currentAnalysis = null;
+    let recognition = null;
+    let isListening = false;
+
+    const $ = id => document.getElementById(id);
+
+    function crc32(str) {
+      let crc = -1;
+      for (let i = 0; i < str.length; i++) {
+        let code = str.charCodeAt(i);
+        crc ^= code;
+        for (let j = 0; j < 8; j++) {
+          crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
+        }
+      }
+      return (crc ^ (-1)) >>> 0;
+    }
+
+    function demoPrice(crop, town) {
+      const base = CROP_BASE_PRICES[crop] || 30;
+      const h = (crc32(crop + town) % 1000) / 1000;
+      return Math.round((base * (0.92 + h * 0.20)) * 10) / 10;
+    }
+
+    function haversine(lat1, lon1, lat2, lon2) {
+      const p1 = lat1 * Math.PI / 180;
+      const p2 = lat2 * Math.PI / 180;
+      const dl = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin((p2 - p1) / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
+      return 2 * 6371 * Math.asin(Math.sqrt(a));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      STATES.forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st;
+        opt.textContent = st;
+        $('state').appendChild(opt);
+      });
+
+      Object.keys(KARNATAKA_DISTRICTS).sort().forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        $('district').appendChild(opt);
+      });
+
+      CROPS.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        $('crop').appendChild(opt);
+      });
+
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      $('book-date').value = tomorrow.toISOString().split('T')[0];
+      $('book-time').value = "09:00";
+
+      $('state').addEventListener('change', syncStateVisibility);
+      $('district').addEventListener('change', handleDistrictChange);
+      $('btn-gps').addEventListener('click', handleGPS);
+      $('btn-analyze').addEventListener('click', runAnalysis);
+      $('btn-voice').addEventListener('click', toggleVoiceAssistant);
+      $('btn-book').addEventListener('click', createBookingSlip);
+      $('btn-reset').addEventListener('click', resetSaved);
+
+      document.addEventListener('input', saveState);
+      document.addEventListener('change', saveState);
+
+      restoreSession();
+      renderSavedHistory();
+      initVoiceRecognition();
+    });
+
+    function syncStateVisibility() {
+      const stateVal = $('state').value;
+      const isKA = stateVal === "Karnataka";
+      $('district-wrap').style.display = isKA ? "block" : "none";
+      updateWeatherDisplay();
+      saveState();
+    }
+
+    function handleDistrictChange() {
+      const d = $('district').value;
+      const talukSelect = $('taluk');
+      talukSelect.innerHTML = '<option value="">Select Taluk</option>';
+      const datalist = $('place-list');
+      datalist.innerHTML = '';
+
+      if (d && KARNATAKA_DISTRICTS[d]) {
+        KARNATAKA_DISTRICTS[d].forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          talukSelect.appendChild(opt);
+
+          const dOpt = document.createElement('option');
+          dOpt.value = `${t}, ${d}`;
+          datalist.appendChild(dOpt);
+        });
+      }
+      updateWeatherDisplay();
+      saveState();
+    }
+
+    function updateWeatherDisplay() {
+      const stateVal = $('state').value;
+      const distVal = $('district').value;
+      
+      if (!stateVal && !currentGPS) {
+        $('stat-loc').textContent = "Not selected";
+        $('stat-loc-sub').textContent = "Select state or district";
+        $('stat-temp').textContent = "--";
+        $('stat-rain').textContent = "--";
+        $('stat-risk').textContent = "--";
+        return;
+      }
+
+      let locName = currentGPS ? currentGPS.name : (distVal ? `${distVal}, KA` : stateVal);
+      $('stat-loc').textContent = locName;
+      $('stat-loc-sub').textContent = currentGPS ? "GPS Coordinates" : "Regional Baseline";
+
+      const seed = crc32(locName);
+      const temp = 26 + (seed % 9);
+      const rain = (seed * 7) % 65;
+      
+      let riskText = "Low";
+      let riskClass = "text-emerald-400";
+      if (rain > 40) {
+        riskText = "High (Rain)";
+        riskClass = "text-rose-400";
+      } else if (temp > 32) {
+        riskText = "Moderate (Heat)";
+        riskClass = "text-amber-400";
+      }
+
+      $('stat-temp').textContent = `${temp}°C`;
+      $('stat-rain').textContent = `${rain}%`;
+      $('stat-risk').textContent = riskText;
+      $('stat-risk').className = `text-lg sm:text-xl font-bold mt-2 ${riskClass}`;
+    }
+
+    function handleGPS() {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+      $('btn-gps').innerHTML = `<i class="ph-bold ph-spinner animate-spin text-brand-400"></i> Locating...`;
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          currentGPS = { lat, lon, name: `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E` };
+          $('btn-gps').innerHTML = `<i class="ph-bold ph-check text-emerald-400"></i> GPS Active`;
+          updateWeatherDisplay();
+          logVoice("GPS coordinates applied successfully.");
+        },
+        err => {
+          alert("Could not retrieve GPS coordinates.");
+          $('btn-gps').innerHTML = `<i class="ph-bold ph-navigation-arrow text-brand-400"></i> <span class="hidden sm:inline">Use GPS</span>`;
+        }
+      );
+    }
+
+    function runAnalysis() {
+      const stateVal = $('state').value;
+      const distVal = $('district').value;
+      const cropVal = $('crop').value;
+      const qty = parseFloat($('quantity').value) || 0;
+      const transportCost = parseFloat($('transport').value) || 0;
+      const expCost = parseFloat($('expenses').value) || 0;
+
+      if (!cropVal || qty <= 0) {
+        alert("Please select a crop and enter a valid quantity in kg.");
+        return;
+      }
+
+      let markets = [];
+      if (stateVal === "Karnataka" && distVal && DISTRICT_COORDS[distVal]) {
+        const [userLat, userLon] = DISTRICT_COORDS[distVal];
+        Object.keys(DISTRICT_COORDS).forEach(dName => {
+          const [mLat, mLon] = DISTRICT_COORDS[dName];
+          const dist = Math.round(haversine(userLat, userLon, mLat, mLon));
+          const price = demoPrice(cropVal, dName);
+          markets.push({ name: `${dName} APMC`, distanceKm: dist, rate: price });
+        });
+        markets.sort((a,b) => a.distanceKm - b.distanceKm);
+        markets = markets.slice(0, 5);
+      } else {
+        const fallbackDistricts = ["Bengaluru Urban", "Davanagere", "Hubballi", "Mysuru", "Belagavi"];
+        fallbackDistricts.forEach((dName, idx) => {
+          const dist = (idx + 1) * 35;
+          const price = demoPrice(cropVal, dName);
+          markets.push({ name: `${dName} APMC`, distanceKm: dist, rate: price });
+        });
+      }
+
+      let maxProfit = -Infinity;
+      let bestMarket = markets[0];
+      markets.forEach(m => {
+        const gross = m.rate * qty;
+        const totalTransport = transportCost + (m.distanceKm * 2.5);
+        const net = gross - totalTransport - expCost;
+        m.gross = gross;
+        m.net = net;
+        m.transportTotal = totalTransport;
+        if (net > maxProfit) {
+          maxProfit = net;
+          bestMarket = m;
+        }
+      });
+
+      currentAnalysis = { cropVal, qty, bestMarket, markets };
+
+      $('results-empty').classList.add('hidden');
+      $('results-panel').classList.remove('hidden');
+
+      $('recommendation-text').innerHTML = `
+        Optimal strategy: Deliver to <strong>${bestMarket.name}</strong> (${bestMarket.distanceKm} km away). 
+        Estimated Mandi rate is <strong>₹${bestMarket.rate}/kg</strong>, yielding an estimated net profit of 
+        <strong class="text-emerald-400">₹${bestMarket.net.toLocaleString('en-IN')}</strong> after factoring in 
+        ₹${bestMarket.transportTotal.toFixed(0)} transport costs and ₹${expCost} expenses.
+      `;
+
+      $('calc-summary').innerHTML = `
+        <div class="flex justify-between"><span>Produce Quantity:</span><span class="text-white">${qty} kg (${cropVal})</span></div>
+        <div class="flex justify-between"><span>Target Mandi:</span><span class="text-white">${bestMarket.name}</span></div>
+        <div class="flex justify-between"><span>Gross Projected Sale:</span><span class="text-white">₹${bestMarket.gross.toLocaleString('en-IN')}</span></div>
+        <div class="flex justify-between"><span>Logistics & Transport:</span><span class="text-rose-400">- ₹${bestMarket.transportTotal.toFixed(0)}</span></div>
+        <div class="flex justify-between"><span>Other Operational Expenses:</span><span class="text-rose-400">- ₹${expCost}</span></div>
+        <div class="border-t border-slate-800 pt-2 flex justify-between font-bold"><span>Estimated Net Revenue:</span><span class="text-emerald-400">₹${bestMarket.net.toLocaleString('en-IN')}</span></div>
+      `;
+
+      const chartContainer = $('chart-container');
+      chartContainer.innerHTML = '';
+      const maxRate = Math.max(...markets.map(m => m.rate));
+
+      const bookMarketSelect = $('book-market');
+      bookMarketSelect.innerHTML = '';
+
+      markets.forEach(m => {
+        const isBest = m.name === bestMarket.name;
+        const pct = Math.round((m.rate / maxRate) * 100);
+
+        const bar = document.createElement('div');
+        bar.className = `p-3 rounded-xl border ${isBest ? 'bg-brand-950/40 border-brand-500/50' : 'bg-slate-950 border-slate-800/80'}`;
+        bar.innerHTML = `
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-white flex items-center gap-1.5">
+              ${m.name} ${isBest ? '<span class="text-[10px] bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Best Choice</span>' : ''}
+            </span>
+            <span class="text-slate-300">₹${m.rate}/kg &bull; ${m.distanceKm} km</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div class="bg-gradient-to-r ${isBest ? 'from-brand-500 to-emerald-400' : 'from-slate-600 to-slate-400'} h-2.5 rounded-full" style="width: ${pct}%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-mono">
+            <span>Net Est: ₹${m.net.toLocaleString('en-IN')}</span>
+            <span>Dist Cost: ₹${m.transportTotal.toFixed(0)}</span>
+          </div>
+        `;
+        chartContainer.appendChild(bar);
+
+        const opt = document.createElement('option');
+        opt.value = m.name;
+        opt.textContent = `${m.name} (₹${m.rate}/kg)`;
+        if (isBest) opt.selected = true;
+        bookMarketSelect.appendChild(opt);
+      });
+
+      saveState();
+    }
+
+    function createBookingSlip() {
+      if (!currentAnalysis) {
+        alert("Please run market analysis first before booking.");
+        return;
+      }
+
+      const farmerName = $('book-customer').value.trim() || "Valued Farmer";
+      const shopkeeper = $('book-shopkeeper').value.trim() || "Mandi Registered Dealer";
+      const phone = $('book-phone').value.trim() || "+91 90000 00000";
+      const dateVal = $('book-date').value;
+      const timeVal = $('book-time').value;
+      const selectedMarketName = $('book-market').value;
+
+      const matchedMarket = currentAnalysis.markets.find(m => m.name === selectedMarketName) || currentAnalysis.bestMarket;
+      const slipId = "SLIP-" + Math.floor(100000 + Math.random() * 900000);
+
+      const booking = {
+        id: slipId,
+        farmerName,
+        shopkeeper,
+        phone,
+        market: matchedMarket.name,
+        date: dateVal,
+        time: timeVal,
+        crop: currentAnalysis.cropVal,
+        qty: currentAnalysis.qty,
+        rate: matchedMarket.rate,
+        gross: matchedMarket.rate * currentAnalysis.qty
+      };
+
+      $('slip-id').textContent = booking.id;
+      $('slip-customer').textContent = booking.farmerName;
+      $('slip-shopkeeper').textContent = booking.shopkeeper;
+      $('slip-market').textContent = booking.market;
+      $('slip-schedule').textContent = `${booking.date} at ${booking.time}`;
+      $('slip-produce').textContent = `${booking.qty} kg (${booking.crop})`;
+      $('slip-rate').textContent = `₹${booking.rate}/kg`;
+      $('slip-gross').textContent = `₹${booking.gross.toLocaleString('en-IN')}`;
+      $('slip-phone').textContent = booking.phone;
+
+      $('slip-container').classList.remove('hidden');
+
+      let history = JSON.parse(localStorage.getItem('smartag_bookings') || '[]');
+      history.unshift(booking);
+      localStorage.setItem('smartag_bookings', JSON.stringify(history));
+
+      renderSavedHistory();
+      logVoice(`Booking ${slipId} saved successfully.`);
+    }
+
+    function renderSavedHistory() {
+      const history = JSON.parse(localStorage.getItem('smartag_bookings') || '[]');
+      const container = $('history-container');
+      const list = $('history-list');
+
+      if (history.length === 0) {
+        container.classList.add('hidden');
+        return;
+      }
+
+      container.classList.remove('hidden');
+      list.innerHTML = '';
+
+      history.slice(0, 3).forEach(b => {
+        const item = document.createElement('div');
+        item.className = "bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs flex justify-between items-center";
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-white">${b.id} &bull; ${b.market}</div>
+            <div class="text-slate-400">${b.farmerName} &bull; ${b.qty}kg ${b.crop}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-emerald-400 font-bold">₹${b.gross.toLocaleString('en-IN')}</div>
+            <div class="text-slate-500">${b.date}</div>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function initVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        $('voice-status').textContent = "Speech recognition API not supported in this browser.";
+        return;
+      }
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-IN';
+
+      recognition.onstart = () => {
+        isListening = true;
+        $('voice-indicator').classList.remove('hidden');
+        $('voice-status').textContent = "Listening... Speak crop, quantity, state, or costs.";
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        $('voice-indicator').classList.add('hidden');
+        $('voice-status').textContent = "Voice Assistant standby.";
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        logVoice(`Heard: "${transcript}"`);
+        parseVoiceCommand(transcript);
+      };
+    }
+
+    function toggleVoiceAssistant() {
+      if (!recognition) {
+        alert("Speech recognition is not available in your web browser.");
+        return;
+      }
+      if (isListening) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    }
+
+    function parseVoiceCommand(text) {
+      CROPS.forEach(c => {
+        if (text.includes(c.toLowerCase())) {
+          $('crop').value = c;
+          logVoice(`Set Crop -> ${c}`);
+        }
+      });
+
+      STATES.forEach(s => {
+        if (text.includes(s.toLowerCase())) {
+          $('state').value = s;
+          syncStateVisibility();
+          logVoice(`Set State -> ${s}`);
+        }
+      });
+
+      const qtyMatch = text.match(/(\d+)\s*(kg|kilos|kilograms)?/);
+      if (qtyMatch && parseInt(qtyMatch[1]) > 0) {
+        $('quantity').value = qtyMatch[1];
+        logVoice(`Set Quantity -> ${qtyMatch[1]} kg`);
+      }
+
+      saveState();
+    }
+
+    function logVoice(msg) {
+      const log = $('voice-log');
+      const item = document.createElement('div');
+      item.className = "text-emerald-300";
+      item.textContent = `> ${msg}`;
+      log.appendChild(item);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function saveState() {
+      const stateObj = {
+        state: $('state').value,
+        district: $('district').value,
+        taluk: $('taluk').value,
+        crop: $('crop').value,
+        quantity: $('quantity').value,
+        transport: $('transport').value,
+        expenses: $('expenses').value,
+        customer: $('book-customer').value,
+        phone: $('book-phone').value
+      };
+      localStorage.setItem('smartag_session', JSON.stringify(stateObj));
+    }
+
+    function restoreSession() {
+      const saved = localStorage.getItem('smartag_session');
+      if (!saved) return;
+      try {
+        const data = JSON.parse(saved);
+        if (data.state) {
+          $('state').value = data.state;
+          syncStateVisibility();
+        }
+        if (data.district) {
+          $('district').value = data.district;
+          handleDistrictChange();
+        }
+        if (data.taluk) $('taluk').value = data.taluk;
+        if (data.crop) $('crop').value = data.crop;
+        if (data.quantity) $('quantity').value = data.quantity;
+        if (data.transport) $('transport').value = data.transport;
+        if (data.expenses) $('expenses').value = data.expenses;
+        if (data.customer) $('book-customer').value = data.customer;
+        if (data.phone) $('book-phone').value = data.phone;
+        updateWeatherDisplay();
+      } catch (e) {
+        console.error("Failed to restore session", e);
+      }
+    }
+
+    function resetSaved() {
+      localStorage.removeItem('smartag_session');
+      localStorage.removeItem('smartag_bookings');
+      location.reload();
+    }
+  </script>
+</body>
+</html>
