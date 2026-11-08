@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game with Score Tracking</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .score-tracker {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .question {
+            font-size: 1.25rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .option-btn {
+            background-color: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 14px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .option-btn:hover {
+            background-color: #f0f4f8;
+            border-color: #3498db;
+        }
+        .option-btn.correct {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+        .option-btn.wrong {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-box">
+    <h1>Knowledge Quiz</h1>
+    <div class="score-tracker">Score: <span id="current-score">0</span></div>
+    
+    <div id="game-content">
+        <div class="question" id="question-text">Loading question...</div>
+        <div class="options-grid" id="options-container">
+            <!-- Buttons will generate here dynamically -->
+        </div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "Which programming language is known for its simplicity and readability?",
+            options: ["Java", "Python", "C++", "JavaScript"],
+            answer: 1
+        },
+        {
+            question: "What does HTML stand for?",
+            options: [
+                "Hyper Text Markup Language",
+                "High Tech Modern Language",
+                "Hyperlink and Text Management Language",
+                "Home Tool Markup Language"
+            ],
+            answer: 0
+        },
+        {
+            question: "Which CSS property changes text color?",
+            options: ["background-color", "text-style", "font-weight", "color"],
+            answer: 3
+        },
+        {
+            question: "Which data type in Python is used to store ordered, modifiable sequences?",
+            options: ["Tuple", "Dictionary", "List", "Set"],
+            answer: 2
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const currentScoreSpan = document.getElementById("current-score");
+    const quizBox = document.getElementById("quiz-box");
+
+    function loadQuestion() {
+        if (currentQuestionIndex >= quizData.length) {
+            showResults();
+            return;
+        }
+
+        const currentQuiz = quizData[currentQuestionIndex];
+        questionText.innerText = currentQuiz.question;
+        optionsContainer.innerHTML = "";
+
+        currentQuiz.options.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.classList.add("option-btn");
+            button.innerText = option;
+            button.addEventListener("click", () => checkAnswer(index, button));
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function checkAnswer(selectedIndex, clickedButton) {
+        const correctIndex = quizData[currentQuestionIndex].answer;
+        const allButtons = optionsContainer.querySelectorAll(".option-btn");
+
+        // Disable all buttons after selection
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === correctIndex) {
+            clickedButton.classList.add("correct");
+            score += 10;
+            currentScoreSpan.innerText = score;
+        } else {
+            clickedButton.classList.add("wrong");
+            allButtons[correctIndex].classList.add("correct");
+        }
+
+        // Delay loading the next question slightly so users see feedback
+        setTimeout(() => {
+            currentQuestionIndex++;
+            loadQuestion();
+        }, 1500);
+    }
+
+    function showResults() {
+        quizBox.innerHTML = `
+            <h1>Quiz Completed!</h1>
+            <p style="font-size: 1.2rem; margin: 20px 0;">Great job! Your final score is:</p>
+            <div style="font-size: 2.5rem; font-weight: bold; color: #2ecc71; margin-bottom: 20px;">${score} Points</div>
+            <p>Calculated using active logic tracking.</p>
+            <a href="index.html" class="back-link">← Back to Portfolio</a>
+        `;
+    }
+
+    // Start game
+    loadQuestion();
+</script>
+
+</body>
+</html>
